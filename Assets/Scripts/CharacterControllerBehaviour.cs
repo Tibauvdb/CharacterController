@@ -7,6 +7,7 @@ using UnityEngine.Assertions;
 public class CharacterControllerBehaviour : MonoBehaviour {
 
     private CharacterController _charCtrl;
+    private Vector3 _velocity= Physics.gravity;
 	// Use this for initialization
 	void Start () {
         _charCtrl = GetComponent<CharacterController>();                                    //Generic Method (Als de component niet bestaat zal het veel geheugen verbruiken)
@@ -25,9 +26,23 @@ public class CharacterControllerBehaviour : MonoBehaviour {
         Assert.IsNotNull(_charCtrl, "DEPENDENCY ERROR: CharacterControllerBehaviour needs a CharacterControllerComponent"); //If object is null, assertion fails and error gets sent out
 #endif
 	}
+
+
+
+
+
+
+
     // Update is called once per frame
     void Update () {
+        if(!_charCtrl.isGrounded)
+        {
+        _velocity += Physics.gravity * Time.deltaTime; //Increment so that the velocity keeps increasing
+        }
+        Vector3 movement = _velocity * Time.deltaTime;
 
+
+        _charCtrl.Move(movement);
 	}
 
 

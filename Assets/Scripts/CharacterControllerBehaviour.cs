@@ -14,6 +14,9 @@ public class CharacterControllerBehaviour : MonoBehaviour {
     private Vector3 _inputMovement;
     [SerializeField]
     private float _acceleration = 3.0f; //m/s^2
+
+    [SerializeField]
+    private float _dragOnGround = 1; //[] no units
 #pragma warning restore 649
 
     // Use this for initialization
@@ -59,6 +62,8 @@ public class CharacterControllerBehaviour : MonoBehaviour {
         ApplyMovement();
 
         DoMovement();
+
+        ApplyDragOnGround();
 	}
 
     private void Grounded()
@@ -102,5 +107,13 @@ public class CharacterControllerBehaviour : MonoBehaviour {
         Vector3 displace = _velocity * Time.deltaTime;
 
         _charCtrl.Move(displace);
+    }
+
+    private void ApplyDragOnGround()
+    {
+        if (_charCtrl.isGrounded)
+        {
+            _velocity *= (1 - Time.fixedDeltaTime * _dragOnGround);
+        }
     }
 }

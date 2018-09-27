@@ -10,6 +10,7 @@ public class CharacterControllerBehaviour : MonoBehaviour {
     private Transform _absoluteTransform; //of relativeTransform
 
     private CharacterController _charCtrl;
+    [SerializeField]
     private Vector3 _velocity= Physics.gravity;
     private Vector3 _inputMovement;
     [SerializeField]
@@ -59,8 +60,8 @@ public class CharacterControllerBehaviour : MonoBehaviour {
         {
             _jump = true;
         }
-
-        ApplyJump();
+        //Falling until isgrounded but when isgrounded is called it's not actually on the ground yet
+       
     }
 
 
@@ -82,14 +83,15 @@ public class CharacterControllerBehaviour : MonoBehaviour {
 
         LimitxzVelocity();
 
-       
-	}
+        ApplyJump();
+    }
 
     private void Grounded()
     {
         if (_charCtrl.isGrounded)
         {
             _velocity -= Vector3.Project(_velocity, Physics.gravity); //Project() projects a vector onto another vector | With dotproduct
+
         }
     }
 
@@ -99,6 +101,7 @@ public class CharacterControllerBehaviour : MonoBehaviour {
         {
             _velocity += Physics.gravity * Time.fixedDeltaTime; //Increment so that the velocity keeps increasing
                                                                 //deltaTime is werkelijke frametime en fixeddeltatime is physics frametime (in fixed update zijn beide fixedDeltaTime)
+                                                 
         }
     }
 
@@ -152,11 +155,11 @@ public class CharacterControllerBehaviour : MonoBehaviour {
 
     private void ApplyJump()
     {
-        Debug.Log("CanJump");
-        if(_charCtrl.isGrounded && _jump==true)
+        if(_jump==true) //Doesnt get called if _charCtrl.isgrounded
         {
-
+            //Will jump but velocity gets reset?
             _velocity.y += Mathf.Sqrt(2 * Physics.gravity.magnitude*_jumpHeight);
+
             _jump = false;
         }
     }

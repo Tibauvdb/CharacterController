@@ -5,17 +5,19 @@ using UnityEngine.Assertions;
 
 //[RequireComponent(typeof(CharacterController))] //Zorgt ervoor dat het script alleen maar werkt als er een characterController is
 public class CharacterControllerBehaviour : MonoBehaviour {
-
+#pragma warning disable 649
     [SerializeField] //Serialized fields kunnen in de editor gezien worden
     private Transform _absoluteTransform; //of relativeTransform
 
     private CharacterController _charCtrl;
     private Vector3 _velocity= Physics.gravity;
     private Vector3 _inputMovement;
+    [SerializeField]
+    private float _acceleration = 3.0f; //m/s^2
+#pragma warning restore 649
 
-
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
 
         _charCtrl = GetComponent<CharacterController>();                                    //Generic Method (Als de component niet bestaat zal het veel geheugen verbruiken)
        // _charCtrl = (CharacterController)GetComponent(typeof(CharacterController));       //Non-Generic method (will crash if it doesn't work)
@@ -78,7 +80,18 @@ public class CharacterControllerBehaviour : MonoBehaviour {
 
     private void ApplyMovement()
     {
+        if (_charCtrl.isGrounded)
+        {
+            Vector3 xzForward = new Vector3(_absoluteTransform.forward.x, 0, _absoluteTransform.forward.z); //Forward on the xz-plane
 
+            xzForward = Vector3.Scale(_absoluteTransform.forward, new Vector3(1, 0, 1)); //Faster version of above
+
+            Quaternion relativeRotation = Quaternion.LookRotation(xzForward);
+
+            Vector3 relativeMovement = relativeRotation * _inputMovement;
+
+            _velocity += relativeMovement * _acceleration * Time.fixedDeltaTime;
+        }
        
 
         //...

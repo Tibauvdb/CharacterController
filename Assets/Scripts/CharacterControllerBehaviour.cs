@@ -17,6 +17,14 @@ public class CharacterControllerBehaviour : MonoBehaviour {
 
     [SerializeField]
     private float _dragOnGround = 1; //[] no units
+
+    [SerializeField]
+    private float _MaximumXZVelocity = (30.0f * 1000) / (60 * 60); // [m/s] 30km/h
+
+    [SerializeField]
+    private float _jumpHeight=1;
+
+    private bool _jump = false;
 #pragma warning restore 649
 
     // Use this for initialization
@@ -46,6 +54,13 @@ public class CharacterControllerBehaviour : MonoBehaviour {
         //Input apart van wiskundige berekening houden | Inputs in update() doen omdat het een keer per frame wordt gedaan
         _inputMovement = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         //Input vertalen tov een ander gameobject (bv Camera) | extra veld aanmaken om movement te kunnen vertalen
+
+        if (Input.GetButtonDown("Jump"))
+        {
+            _jump = true;
+        }
+
+        ApplyJump();
     }
 
 
@@ -64,6 +79,10 @@ public class CharacterControllerBehaviour : MonoBehaviour {
         DoMovement();
 
         ApplyDragOnGround();
+
+        LimitxzVelocity();
+
+       
 	}
 
     private void Grounded()
@@ -114,6 +133,31 @@ public class CharacterControllerBehaviour : MonoBehaviour {
         if (_charCtrl.isGrounded)
         {
             _velocity *= (1 - Time.fixedDeltaTime * _dragOnGround);
+        }
+    }
+
+    private void LimitxzVelocity()
+    {
+        if(_charCtrl.isGrounded)
+        {
+            Vector3 yVelocity = Vector3.Scale(_velocity, new Vector3(0, 1, 0));
+            Vector3 xzVelocity = Vector3.Scale(_velocity, new Vector3(1, 0, 1));
+
+            Vector3 clampedXZVelocity = 
+                Vector3.ClampMagnitude(_velocity, _MaximumXZVelocity); //Limiteert ook in de y richting
+
+            _velocity = clampedXZVelocity + yVelocity;
+        }
+    }
+
+    private void ApplyJump()
+    {
+        Debug.Log("CanJump");
+        if(_charCtrl.isGrounded && _jump==true)
+        {
+
+            _velocity.y += Mathf.Sqrt(2 * Physics.gravity.magnitude*_jumpHeight);
+            _jump = false;
         }
     }
 }

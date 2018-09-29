@@ -13,11 +13,11 @@ public class CharacterControllerBehaviour : MonoBehaviour {
     [SerializeField]
     private Vector3 _velocity= Physics.gravity;
     private Vector3 _inputMovement;
-    [SerializeField]
-    private float _acceleration = 3.0f; //m/s^2
+    //[SerializeField]
+    private float _acceleration = 50.0f; //m/s^2
 
-    [SerializeField]
-    private float _dragOnGround = 1; //[] no units
+   // [SerializeField]
+    private float _dragOnGround = 10; //[] no units
 
     [SerializeField]
     private float _MaximumXZVelocity = (30.0f * 1000) / (60 * 60); // [m/s] 30km/h
@@ -53,15 +53,16 @@ public class CharacterControllerBehaviour : MonoBehaviour {
     private void Update()
     {
         //Input apart van wiskundige berekening houden | Inputs in update() doen omdat het een keer per frame wordt gedaan
-        _inputMovement = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         //Input vertalen tov een ander gameobject (bv Camera) | extra veld aanmaken om movement te kunnen vertalen
 
+        _inputMovement = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+        
         if (Input.GetButtonDown("Jump"))
         {
             _jump = true;
         }
-        //Falling until isgrounded but when isgrounded is called it's not actually on the ground yet
-       
+
+        ApplyJump();
     }
 
 
@@ -71,19 +72,21 @@ public class CharacterControllerBehaviour : MonoBehaviour {
     // Update is called once per frame
     void FixedUpdate () {
 
+
         Grounded();
 
         Falling();
 
         ApplyMovement();
 
-        DoMovement();
-
         ApplyDragOnGround();
 
         LimitxzVelocity();
 
-        ApplyJump();
+     
+
+        DoMovement();
+
     }
 
     private void Grounded()
@@ -155,8 +158,9 @@ public class CharacterControllerBehaviour : MonoBehaviour {
 
     private void ApplyJump()
     {
-        if(_jump==true) //Doesnt get called if _charCtrl.isgrounded
+        if (_jump==true && _charCtrl.isGrounded) //gets called in mid air when asking for _charCtrl.isGrounded
         {
+            Debug.Log("Spacebar is pressed");
             //Will jump but velocity gets reset?
             _velocity.y += Mathf.Sqrt(2 * Physics.gravity.magnitude*_jumpHeight);
 
